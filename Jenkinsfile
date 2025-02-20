@@ -27,18 +27,17 @@ pipeline {
         }
         
         stage('Build Docker Image') {
-            steps {
-                script {
-                    // Clean up any stale docker credentials (optional)
-                    sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
-                    
-                    // Build the image; tag it without the registry host.
-                    def customImage = docker.build("${REPO_NAME}:${IMAGE_TAG}")
-                    
-                    // Save the tag for later use
-                    env.CUSTOM_IMAGE = "${REPO_NAME}:${IMAGE_TAG}"
-                }
-            }
+    steps {
+        script {
+            // Temporarily disable cleanup to see if it resolves the error:
+            // sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
+            
+            def customImage = docker.build("${REPO_NAME}:${IMAGE_TAG}")
+            env.CUSTOM_IMAGE = "${REPO_NAME}:${IMAGE_TAG}"
+        }
+    }
+}
+
         }
 
         stage('Push Image to ECR') {
