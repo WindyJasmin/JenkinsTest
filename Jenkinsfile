@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "us-east-1" 
+        AWS_REGION = "us-east-1"
         ECR_REPO = "767397930329.dkr.ecr.us-east-1.amazonaws.com/deployment/jenkins"
         IMAGE_TAG = "latest"
     }
@@ -25,14 +25,6 @@ pipeline {
             }
         }
 
-        stage('Login to AWS ECR') {
-            steps {
-                script {
-                   withCredentials([aws(credentialsId: 'aws-jenkins-credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {}
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -44,7 +36,10 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 script {
-                    sh "docker push $ECR_REPO:$IMAGE_TAG"
+                    docker.withRegistry("https://${ECR_REPO}", "ecr:us-east-1:aws-jenkins-credentials") {
+                        def customImage = docker.build("$ECR_REPO:$IMAGE_TAG")
+                        customImage.push()
+                    }
                 }
             }
         }
