@@ -25,25 +25,29 @@ pipeline {
                 }
             }
         }
-        
-        stage('Build Docker Image') {
-    steps {
-        script {
-            // Temporarily disable cleanup to see if it resolves the error:
-            // sh 'rm -f ~/.dockercfg ~/.docker/config.json || true'
-            
-            def customImage = docker.build("${REPO_NAME}:${IMAGE_TAG}")
-            env.CUSTOM_IMAGE = "${REPO_NAME}:${IMAGE_TAG}"
-        }
-    }
-}
 
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // 🔥 REMOVE cleanup, focus on building Docker image
+                    echo "Skipping Docker credential cleanup."
+
+                    // Check if Docker is installed and accessible
+                    sh 'docker --version'
+
+                    // Build the image; tag it without the registry host.
+                    def customImage = docker.build("${REPO_NAME}:${IMAGE_TAG}")
+                    
+                    // Save the tag for later use
+                    env.CUSTOM_IMAGE = "${REPO_NAME}:${IMAGE_TAG}"
+                }
+            }
         }
 
         stage('Push Image to ECR') {
             steps {
                 script {
-                    // Use the ECR plugin syntax to automatically log in:
+                    // 🔥 Use ECR Plugin for authentication
                     docker.withRegistry("https://${REGISTRY_HOST}", "ecr:${AWS_REGION}:aws-jenkins-credentials") {
                         docker.image(env.CUSTOM_IMAGE).push()
                     }
@@ -54,8 +58,8 @@ pipeline {
         stage('Clean Up') {
             steps {
                 script {
-                    // Optionally remove the local image to free disk space.
-                    sh "docker rmi ${REGISTRY_HOST}/${REPO_NAME}:${IMAGE_TAG} || true"
+                    // 🔥 Make sure cleanup doesn’t block the pipeline
+                    sh "docker rmi ${REPO_NAME}:${IMAGE_TAG} || true"
                 }
             }
         }
