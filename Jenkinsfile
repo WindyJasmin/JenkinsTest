@@ -8,6 +8,23 @@ pipeline {
     }
 
     stages {
+        stage('Debug AWS Credentials') {
+            steps {
+                script {
+                    sh '''
+                    echo "AWS CLI Version:"
+                    aws --version
+
+                    echo "Checking AWS Credentials..."
+                    env | grep AWS
+
+                    echo "Checking if we can describe ECR Repositories..."
+                    aws ecr describe-repositories --region us-east-1 || echo "Failed to access ECR"
+                    '''
+                }
+            }
+        }
+
         stage('Login to AWS ECR') {
             steps {
                 script {
