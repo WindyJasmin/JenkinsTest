@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "us-east-1"
-        REGISTRY_HOST = "767397930329.dkr.ecr.us-east-1.amazonaws.com"
-        REPO_NAME = "deployment/jenkins"
+        AWS_REGION = "us-east-1" 
+        ECR_REPO = "767397930329.dkr.ecr.us-east-1.amazonaws.com/deployment/jenkins"
         IMAGE_TAG = "latest"
     }
 
@@ -20,8 +19,16 @@ pipeline {
                     env | grep AWS
 
                     echo "Checking if we can describe ECR Repositories..."
-                    aws ecr describe-repositories --region $AWS_REGION || echo "Failed to access ECR"
+                    aws ecr describe-repositories --region us-east-1 || echo "Failed to access ECR"
                     '''
+                }
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                   withCredentials([aws(credentialsId: 'aws-jenkins-credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {}
                 }
             }
         }
@@ -29,17 +36,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // 🔥 REMOVE cleanup, focus on building Docker image
-                    echo "Skipping Docker credential cleanup."
-
-                    // Check if Docker is installed and accessible
-                    sh 'docker --version'
-
-                    // Build the image; tag it without the registry host.
-                    def customImage = docker.build("${REPO_NAME}:${IMAGE_TAG}")
-                    
-                    // Save the tag for later use
-                    env.CUSTOM_IMAGE = "${REPO_NAME}:${IMAGE_TAG}"
+                    sh "docker build -t $ECR_REPO:$IMAGE_TAG ."
                 }
             }
         }
@@ -47,10 +44,7 @@ pipeline {
         stage('Push Image to ECR') {
             steps {
                 script {
-                    // 🔥 Use ECR Plugin for authentication
-                    docker.withRegistry("https://${REGISTRY_HOST}", "ecr:${AWS_REGION}:aws-jenkins-credentials") {
-                        docker.image(env.CUSTOM_IMAGE).push()
-                    }
+                    sh "docker push $ECR_REPO:$IMAGE_TAG"
                 }
             }
         }
@@ -58,8 +52,7 @@ pipeline {
         stage('Clean Up') {
             steps {
                 script {
-                    // 🔥 Make sure cleanup doesn’t block the pipeline
-                    sh "docker rmi ${REPO_NAME}:${IMAGE_TAG} || true"
+                    sh "docker rmi $ECR_REPO:$IMAGE_TAG"
                 }
             }
         }
