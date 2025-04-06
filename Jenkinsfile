@@ -2,11 +2,28 @@ pipeline {
     agent any
 
     stages {
-        stage('Force Windows CMD') {
+        stage('Print a Message') {
             steps {
                 script {
-                    def cmd = 'C:\\Windows\\System32\\cmd.exe /c echo Forced CMD Execution: It works!'
-                    bat cmd
+                    echo "✅ Jenkins is working on Windows!"
+                }
+            }
+        }
+
+        stage('Do Math') {
+            steps {
+                script {
+                    def result = 21 * 2
+                    echo "21 x 2 = ${result}"
+                }
+            }
+        }
+
+        stage('List Env Vars') {
+            steps {
+                script {
+                    echo "USER: ${env.USERNAME}"
+                    echo "OS: ${env.OS}"
                 }
             }
         }
