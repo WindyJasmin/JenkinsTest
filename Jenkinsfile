@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+                        echo "Authenticating to AWS ECR"
                     """
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t $IMAGE_NAME ."
+                    sh "Building Docker Image"
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Tag Docker Image') {
             steps {
                 script {
-                    sh "docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG"
+                    sh "Tagging Docker Image"
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
         stage('Push Image to AWS ECR') {
             steps {
                 script {
-                    sh "docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG"
+                    sh "Pushing Image to AWS ECR"
                 }
             }
         }
@@ -47,7 +47,7 @@ pipeline {
         stage('Clean Up Docker') {
             steps {
                 script {
-                    sh "docker rmi $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG"
+                    sh "Cleaning Up Docker"
                 }
             }
         }
