@@ -12,43 +12,41 @@ pipeline {
     stages {
         stage('Authenticate to AWS ECR') {
             steps {
-                script {
-                    sh """
-                        echo "Authenticating to AWS ECR"
-                    """
-                }
+                bat '''
+                    echo Authenticating to AWS ECR
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "Building Docker Image"
-                }
+                bat '''
+                    echo Building Docker Image
+                '''
             }
         }
 
         stage('Tag Docker Image') {
             steps {
-                script {
-                    sh "Tagging Docker Image"
-                }
+                bat '''
+                    echo Tagging Docker Image
+                '''
             }
         }
 
         stage('Push Image to AWS ECR') {
             steps {
-                script {
-                    sh "Pushing Image to AWS ECR"
-                }
+                bat '''
+                    echo Pushing Image to AWS ECR
+                '''
             }
         }
 
         stage('Clean Up Docker') {
             steps {
-                script {
-                    sh "Cleaning Up Docker"
-                }
+                bat '''
+                    echo Cleaning Up Docker
+                '''
             }
         }
     }
