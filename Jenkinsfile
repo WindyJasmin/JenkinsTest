@@ -2,11 +2,12 @@ pipeline {
     agent any
 
     stages {
-        stage('Test Batch Script') {
+        stage('Force Windows CMD') {
             steps {
-                bat '''
-                    echo Hello from Jenkins on Windows!
-                '''
+                script {
+                    def cmd = 'C:\\Windows\\System32\\cmd.exe /c echo Forced CMD Execution: It works!'
+                    bat cmd
+                }
             }
         }
     }
