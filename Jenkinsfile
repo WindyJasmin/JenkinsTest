@@ -1,29 +1,53 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = "us-east-1"
+        ECR_REGISTRY = "767397930329.dkr.ecr.us-east-1.amazonaws.com"
+        ECR_REPO = "deployment/jenkins"
+        IMAGE_NAME = "deployment/jenkins"
+        IMAGE_TAG = "latest"
+    }
+
     stages {
-        stage('Print a Message') {
+        stage('Authenticate to AWS ECR') {
             steps {
                 script {
-                    echo "✅ Jenkins is working on Windows!"
+                    echo "✅ Authenticating to AWS ECR"
+                    echo "Region: ${env.AWS_REGION}"
+                    echo "Registry: ${env.ECR_REGISTRY}"
                 }
             }
         }
 
-        stage('Do Math') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    def result = 21 * 2
-                    echo "21 x 2 = ${result}"
+                    echo "🚧 Building Docker Image: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                 }
             }
         }
 
-        stage('List Env Vars') {
+        stage('Tag Docker Image') {
             steps {
                 script {
-                    echo "USER: ${env.USERNAME}"
-                    echo "OS: ${env.OS}"
+                    echo "🏷️ Tagging Image for ${env.ECR_REPO}"
+                }
+            }
+        }
+
+        stage('Push Image to AWS ECR') {
+            steps {
+                script {
+                    echo "📤 Pushing Image to ${env.ECR_REGISTRY}/${env.ECR_REPO}"
+                }
+            }
+        }
+
+        stage('Clean Up Docker') {
+            steps {
+                script {
+                    echo "🧹 Cleaning up Docker images"
                 }
             }
         }
