@@ -12,41 +12,31 @@ pipeline {
     stages {
         stage('Authenticate to AWS ECR') {
             steps {
-                bat '''
-                    echo Authenticating to AWS ECR
-                '''
+                bat 'C:\\Windows\\System32\\cmd.exe /c echo Authenticating to AWS ECR'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat '''
-                    echo Building Docker Image
-                '''
+                bat 'C:\\Windows\\System32\\cmd.exe /c echo Building Docker Image'
             }
         }
 
         stage('Tag Docker Image') {
             steps {
-                bat '''
-                    echo Tagging Docker Image
-                '''
+                bat 'C:\\Windows\\System32\\cmd.exe /c echo Tagging Docker Image'
             }
         }
 
         stage('Push Image to AWS ECR') {
             steps {
-                bat '''
-                    echo Pushing Image to AWS ECR
-                '''
+                bat 'C:\\Windows\\System32\\cmd.exe /c echo Pushing Image to AWS ECR'
             }
         }
 
         stage('Clean Up Docker') {
             steps {
-                bat '''
-                    echo Cleaning Up Docker
-                '''
+                bat 'C:\\Windows\\System32\\cmd.exe /c echo Cleaning Up Docker'
             }
         }
     }
